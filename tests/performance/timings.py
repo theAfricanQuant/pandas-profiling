@@ -14,9 +14,9 @@ def generate_column_names(n):
     column_names = []
     iters = 1
     while len(column_names) < n:
-        column_names += list(
+        column_names += [
             "".join(combo) for combo in product(ascii_lowercase, repeat=iters)
-        )
+        ]
         iters += 1
     return column_names
 
@@ -25,7 +25,8 @@ def make_sample_data(cols, rows):
     column_names = generate_column_names(cols)
 
     df = pd.DataFrame(
-        np.random.randint(0, 1000000, size=(rows, cols)), columns=column_names[0:cols]
+        np.random.randint(0, 1000000, size=(rows, cols)),
+        columns=column_names[:cols],
     )
     df = df.astype(str)
 

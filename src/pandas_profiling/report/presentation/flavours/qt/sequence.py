@@ -7,10 +7,7 @@ from pandas_profiling.report.presentation.core.sequence import Sequence
 
 
 def get_name(item: Renderable):
-    if hasattr(item, "name"):
-        return item.name
-    else:
-        return item.anchor_id
+    return item.name if hasattr(item, "name") else item.anchor_id
 
 
 def get_tabs(items):

@@ -28,4 +28,4 @@ def test_json(data):
 
 def test_repr(data):
     report = ProfileReport(data)
-    assert repr(report) == ""
+    assert not repr(report)

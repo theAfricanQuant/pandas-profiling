@@ -73,18 +73,16 @@ def render_categorical(summary):
     # TODO: settings 3,3,6
     template_variables["top"] = Sequence([info, table, fqm], sequence_type="grid")
 
-    # Bottom
-    items = []
     frequency_table = FrequencyTable(
         template_variables["freq_table_rows"],
         name="Common Values",
         anchor_id="{varid}common_values".format(varid=summary["varid"]),
     )
 
-    items.append(frequency_table)
-
-    check_compositions = config["vars"]["cat"]["check_composition"].get(bool)
-    if check_compositions:
+    items = [frequency_table]
+    if check_compositions := config["vars"]["cat"]["check_composition"].get(
+        bool
+    ):
         length_table = Table(
             [
                 {
@@ -128,18 +126,20 @@ def render_categorical(summary):
 
         n_freq_table_max = config["n_freq_table_max"].get(int)
 
-        citems = []
         vc = pd.Series(summary["category_alias_values"]).value_counts()
-        citems.append(
+        citems = [
             FrequencyTable(
                 freq_table(
-                    freqtable=vc, n=vc.sum(), max_number_to_print=n_freq_table_max
+                    freqtable=vc,
+                    n=vc.sum(),
+                    max_number_to_print=n_freq_table_max,
                 ),
                 name="Categories",
-                anchor_id="{varid}category_long_values".format(varid=summary["varid"]),
+                anchor_id="{varid}category_long_values".format(
+                    varid=summary["varid"]
+                ),
             )
-        )
-
+        ]
         vc = pd.Series(summary["script_values"]).value_counts()
         citems.append(
             FrequencyTable(

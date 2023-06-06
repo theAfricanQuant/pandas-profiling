@@ -15,10 +15,7 @@ def update(d: dict, u: Mapping) -> dict:
         The merged dictionary.
     """
     for k, v in u.items():
-        if isinstance(v, collections.Mapping):
-            d[k] = update(d.get(k, {}), v)
-        else:
-            d[k] = v
+        d[k] = update(d.get(k, {}), v) if isinstance(v, collections.Mapping) else v
     return d
 
 
@@ -58,7 +55,7 @@ JPEG_MARK = (
 
 def test_jpeg2(h, f):
     """JPEG with small header"""
-    if len(h) >= 32 and 67 == h[5] and h[:32] == JPEG_MARK:
+    if len(h) >= 32 and h[5] == 67 and h[:32] == JPEG_MARK:
         return "jpeg"
 
 

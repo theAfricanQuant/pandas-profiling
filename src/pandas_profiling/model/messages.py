@@ -154,24 +154,22 @@ def check_variable_messages(col: str, description: dict) -> List[Message]:
         return messages
 
     if description["distinct_count_with_nan"] <= 1:
-        messages.append(
-            Message(
-                column_name=col,
-                message_type=MessageType.CONSTANT,
-                values=description,
-                fields={"n_unique"},
+        messages.extend(
+            (
+                Message(
+                    column_name=col,
+                    message_type=MessageType.CONSTANT,
+                    values=description,
+                    fields={"n_unique"},
+                ),
+                Message(
+                    column_name=col,
+                    message_type=MessageType.REJECTED,
+                    values=description,
+                    fields={},
+                ),
             )
         )
-
-        messages.append(
-            Message(
-                column_name=col,
-                message_type=MessageType.REJECTED,
-                values=description,
-                fields={},
-            )
-        )
-
     if description["distinct_count_without_nan"] == description["n"]:
         messages.append(
             Message(
@@ -291,14 +289,14 @@ def check_correlation_messages(correlations):
             threshold = config["correlations"][corr]["threshold"].get(float)
             correlated_mapping = perform_check_correlation(matrix, threshold)
             if len(correlated_mapping) > 0:
-                for k, v in correlated_mapping.items():
-                    messages.append(
-                        Message(
-                            column_name=k,
-                            message_type=MessageType.HIGH_CORRELATION,
-                            values={"corr": corr, "fields": v},
-                        )
+                messages.extend(
+                    Message(
+                        column_name=k,
+                        message_type=MessageType.HIGH_CORRELATION,
+                        values={"corr": corr, "fields": v},
                     )
+                    for k, v in correlated_mapping.items()
+                )
     return messages
 
 

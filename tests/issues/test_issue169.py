@@ -12,14 +12,12 @@ import pandas_profiling
 
 @pytest.fixture
 def issue_169_data() -> StringIO:
-    data = StringIO(
+    return StringIO(
         """index,company-code,company,shop-code,shop,description,brand
     item_24119,13,COMPANY NAME,32,COMPANY - EXITS,GREAT PRODUCT SELLING,BRAND1
     item_27405,13,COMPANY NAME,32,COMPANY - EXITS,THIS IS THE BEST PRODUCT,
     """
     )
-
-    return data
 
 
 def test_issue_169_column(issue_169_data):

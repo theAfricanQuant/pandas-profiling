@@ -43,29 +43,28 @@ def read_pandas(file_name: Path) -> pd.DataFrame:
     """
     extension = file_name.suffix.lower()
     if extension == ".json":
-        df = pd.read_json(str(file_name))
+        return pd.read_json(str(file_name))
     elif extension == ".jsonl":
-        df = pd.read_json(str(file_name), lines=True)
+        return pd.read_json(str(file_name), lines=True)
     elif extension == ".dta":
-        df = pd.read_stata(str(file_name))
+        return pd.read_stata(str(file_name))
     elif extension == ".tsv":
-        df = pd.read_csv(str(file_name), sep="\t")
+        return pd.read_csv(str(file_name), sep="\t")
     elif extension in [".xls", ".xlsx"]:
-        df = pd.read_excel(str(file_name))
+        return pd.read_excel(str(file_name))
     elif extension in [".hdf", ".h5"]:
-        df = pd.read_hdf(str(file_name))
+        return pd.read_hdf(str(file_name))
     elif extension in [".sas7bdat", ".xpt"]:
-        df = pd.read_sas(str(file_name))
+        return pd.read_sas(str(file_name))
     elif extension == ".parquet":
-        df = pd.read_parquet(str(file_name))
+        return pd.read_parquet(str(file_name))
     elif extension in [".pkl", ".pickle"]:
-        df = pd.read_pickle(str(file_name))
+        return pd.read_pickle(str(file_name))
     else:
         if extension != ".csv":
             warn_read(extension)
 
-        df = pd.read_csv(str(file_name))
-    return df
+        return pd.read_csv(str(file_name))
 
 
 def rename_index(df):
@@ -107,7 +106,10 @@ def expand_mixed(df: pd.DataFrame, types=None) -> pd.DataFrame:
         non_nested_enumeration = (
             df[column_name]
             .dropna()
-            .map(lambda x: type(x) in types and not any(type(y) in types for y in x))
+            .map(
+                lambda x: type(x) in types
+                and all(type(y) not in types for y in x)
+            )
         )
 
         if non_nested_enumeration.all():

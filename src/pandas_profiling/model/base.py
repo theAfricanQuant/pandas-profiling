@@ -97,7 +97,7 @@ def is_boolean(series: pd.Series, series_description: dict) -> bool:
     ):
         return True
     elif 1 <= series_description["distinct_count_without_nan"] <= 4:
-        unique_values = set([str(value).lower() for value in keys.values])
+        unique_values = {str(value).lower() for value in keys.values}
         accepted_combinations = [
             ["y", "n"],
             ["yes", "no"],
@@ -106,7 +106,7 @@ def is_boolean(series: pd.Series, series_description: dict) -> bool:
         ]
 
         if len(unique_values) == 2 and any(
-            [unique_values == set(bools) for bools in accepted_combinations]
+            unique_values == set(bools) for bools in accepted_combinations
         ):
             return True
 
@@ -138,24 +138,22 @@ def is_url(series: pd.Series, series_description: dict) -> bool:
     Returns:
         True is the series is url type (NaNs allowed).
     """
-    if series_description["distinct_count_without_nan"] > 0:
-        try:
-            result = series[~series.isnull()].astype(str).apply(urlparse)
-            return result.apply(lambda x: all([x.scheme, x.netloc, x.path])).all()
-        except ValueError:
-            return False
-    else:
+    if series_description["distinct_count_without_nan"] <= 0:
+        return False
+    try:
+        result = series[~series.isnull()].astype(str).apply(urlparse)
+        return result.apply(lambda x: all([x.scheme, x.netloc, x.path])).all()
+    except ValueError:
         return False
 
 
 def is_path(series, series_description) -> bool:
-    if series_description["distinct_count_without_nan"] > 0:
-        try:
-            result = series[~series.isnull()].astype(str).apply(str_is_path)
-            return result.all()
-        except ValueError:
-            return False
-    else:
+    if series_description["distinct_count_without_nan"] <= 0:
+        return False
+    try:
+        result = series[~series.isnull()].astype(str).apply(str_is_path)
+        return result.all()
+    except ValueError:
         return False
 
 
@@ -169,9 +167,7 @@ def is_date(series) -> bool:
     Returns:
         True if the variable is of type datetime.
     """
-    is_date_value = pd.api.types.is_datetime64_dtype(series)
-
-    return is_date_value
+    return pd.api.types.is_datetime64_dtype(series)
 
 
 def get_var_type(series: pd.Series) -> dict:

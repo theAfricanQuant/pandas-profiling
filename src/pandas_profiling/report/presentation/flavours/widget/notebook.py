@@ -73,7 +73,7 @@ def get_notebook_iframe(profile) -> CoreWidget:
         output = get_notebook_iframe_srcdoc(profile)
     else:
         raise ValueError(
-            'Iframe Attribute can be "src" or "srcdoc" (current: {}).'.format(attribute)
+            f'Iframe Attribute can be "src" or "srcdoc" (current: {attribute}).'
         )
 
     return output

@@ -5,10 +5,7 @@ from pandas_profiling.report.presentation.core.sequence import Sequence
 
 
 def get_name(item: Renderable):
-    if hasattr(item, "name"):
-        return item.name
-    else:
-        return item.anchor_id
+    return item.name if hasattr(item, "name") else item.anchor_id
 
 
 def get_tabs(items):
@@ -78,10 +75,7 @@ class WidgetSequence(Sequence):
             toggle = widgets.ToggleButton(description="Toggle details")
 
             def hide_slider(widg):
-                if widg["new"]:
-                    i2.layout.display = ""
-                else:
-                    i2.layout.display = "none"
+                i2.layout.display = "" if widg["new"] else "none"
 
             toggle.observe(hide_slider, names=["value"])
             i2.layout.display = "none"

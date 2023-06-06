@@ -9,7 +9,7 @@ def render_common(summary):
     n_extreme_obs = config["n_extreme_obs"].get(int)
     n_freq_table_max = config["n_freq_table_max"].get(int)
 
-    template_variables = {
+    return {
         "freq_table_rows": freq_table(
             freqtable=summary["value_counts"],
             n=summary["n"],
@@ -28,5 +28,3 @@ def render_common(summary):
             ascending=False,
         ),
     }
-
-    return template_variables

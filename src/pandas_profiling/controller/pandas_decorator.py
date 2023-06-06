@@ -14,8 +14,7 @@ def profile_report(df, **kwargs) -> ProfileReport:
     Returns:
         A ProfileReport of the DataFrame.
     """
-    p = ProfileReport(df, **kwargs)
-    return p
+    return ProfileReport(df, **kwargs)
 
 
 DataFrame.profile_report = profile_report

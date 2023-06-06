@@ -30,7 +30,7 @@ def df(get_data_file):
     df["reclat_city"] = df["reclat"] + np.random.normal(scale=5, size=(len(df)))
 
     # Example: Duplicate observations
-    duplicates_to_add = pd.DataFrame(df.iloc[0:10])
+    duplicates_to_add = pd.DataFrame(df.iloc[:10])
     duplicates_to_add["name"] = duplicates_to_add["name"] + " copy"
 
     df = df.append(duplicates_to_add, ignore_index=True)

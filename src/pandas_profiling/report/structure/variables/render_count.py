@@ -127,12 +127,12 @@ def render_count(summary):
 
     seqs = [
         Image(
-            histogram(summary["histogram_data"], summary, summary["histogram_bins"]),
+            histogram(
+                summary["histogram_data"], summary, summary["histogram_bins"]
+            ),
             image_format=image_format,
             alt="Histogram",
-            caption="<strong>Histogram with fixed size bins</strong> (bins={})".format(
-                summary["histogram_bins"]
-            ),
+            caption=f'<strong>Histogram with fixed size bins</strong> (bins={summary["histogram_bins"]})',
             name="Histogram",
             anchor_id="histogram",
         )

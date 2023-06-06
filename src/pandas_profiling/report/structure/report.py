@@ -42,20 +42,16 @@ from pandas_profiling.report.presentation.core import (
 
 def get_missing_items(summary) -> list:
     image_format = config["plot"]["image_format"].get(str)
-    items = []
-    for key, item in summary["missing"].items():
-        items.append(
-            # TODO: Add informative caption
-            Image(
-                item["matrix"],
-                image_format=image_format,
-                alt=item["name"],
-                name=item["name"],
-                anchor_id=key,
-            )
+    return [
+        Image(
+            item["matrix"],
+            image_format=image_format,
+            alt=item["name"],
+            name=item["name"],
+            anchor_id=key,
         )
-
-    return items
+        for key, item in summary["missing"].items()
+    ]
 
 
 def get_correlation_items(summary) -> list:
@@ -150,7 +146,7 @@ def render_variables_section(dataframe_summary: dict) -> list:
             "warn_fields": warning_fields,
         }
 
-        template_variables.update(summary)
+        template_variables |= summary
 
         # Per type template variables
         template_variables.update(type_to_func[summary["type"]](template_variables))
@@ -183,17 +179,15 @@ def get_sample_items(sample: dict):
     Returns:
         List of sample items to show in the interface.
     """
-    items = []
     names = {"head": "First rows", "tail": "Last rows"}
-    for key, value in sample.items():
-        items.append(
-            Sample(
-                sample=value.to_html(classes="sample table table-striped"),
-                name=names[key],
-                anchor_id=key,
-            )
+    return [
+        Sample(
+            sample=value.to_html(classes="sample table table-striped"),
+            name=names[key],
+            anchor_id=key,
         )
-    return items
+        for key, value in sample.items()
+    ]
 
 
 def get_scatter_matrix(scatter_matrix):
@@ -201,20 +195,18 @@ def get_scatter_matrix(scatter_matrix):
 
     titems = []
     for x_col, y_cols in scatter_matrix.items():
-        items = []
-        for y_col, splot in y_cols.items():
-            items.append(
-                Image(
-                    splot,
-                    image_format=image_format,
-                    alt="{x_col} x {y_col}".format(x_col=x_col, y_col=y_col),
-                    anchor_id="interactions_{x_col}_{y_col}".format(
-                        x_col=x_col, y_col=y_col
-                    ),
-                    name="{y_col}".format(x_col=x_col, y_col=y_col),
-                )
+        items = [
+            Image(
+                splot,
+                image_format=image_format,
+                alt="{x_col} x {y_col}".format(x_col=x_col, y_col=y_col),
+                anchor_id="interactions_{x_col}_{y_col}".format(
+                    x_col=x_col, y_col=y_col
+                ),
+                name="{y_col}".format(x_col=x_col, y_col=y_col),
             )
-
+            for y_col, splot in y_cols.items()
+        ]
         titems.append(
             Sequence(
                 items,
@@ -246,12 +238,8 @@ def get_report_structure(
         anchor_id="interactions",
     )
     collapse_warnings = config["warnings"]["collapse_if_more"].get(int)
-    if collapse_warnings == 0:
-        warnings = []
-    else:
-        warnings = summary["messages"]
-
-    sections = Sequence(
+    warnings = [] if collapse_warnings == 0 else summary["messages"]
+    return Sequence(
         [
             Dataset(
                 package=summary["package"],
@@ -293,5 +281,3 @@ def get_report_structure(
         name="Report",
         sequence_type="sections",
     )
-
-    return sections

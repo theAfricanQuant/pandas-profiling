@@ -76,12 +76,10 @@ def describe_numeric_1d(series: pd.Series, series_description: dict) -> dict:
         stats["chi_squared"] = chisquare(histogram)
 
     stats["range"] = stats["max"] - stats["min"]
-    stats.update(
-        {
-            "{:.0%}".format(percentile): value
-            for percentile, value in series.quantile(quantiles).to_dict().items()
-        }
-    )
+    stats |= {
+        "{:.0%}".format(percentile): value
+        for percentile, value in series.quantile(quantiles).to_dict().items()
+    }
     stats["iqr"] = stats["75%"] - stats["25%"]
     stats["cv"] = stats["std"] / stats["mean"] if stats["mean"] else np.NaN
     stats["p_zeros"] = float(stats["n_zeros"]) / len(series)
@@ -91,8 +89,9 @@ def describe_numeric_1d(series: pd.Series, series_description: dict) -> dict:
     bins = min(series_description["distinct_count_with_nan"], bins)
     stats["histogram_bins"] = bins
 
-    bayesian_blocks_bins = config["plot"]["histogram"]["bayesian_blocks_bins"].get(bool)
-    if bayesian_blocks_bins:
+    if bayesian_blocks_bins := config["plot"]["histogram"][
+        "bayesian_blocks_bins"
+    ].get(bool):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             ret = bayesian_blocks(stats["histogram_data"])
@@ -148,15 +147,16 @@ def describe_categorical_1d(series: pd.Series, series_description: dict) -> dict
     if chi_squared_threshold > 0.0:
         stats["chi_squared"] = list(chisquare(value_counts.values))
 
-    check_composition = config["vars"]["cat"]["check_composition"].get(bool)
-    if check_composition:
+    if check_composition := config["vars"]["cat"]["check_composition"].get(
+        bool
+    ):
         stats["max_length"] = series.str.len().max()
         stats["mean_length"] = series.str.len().mean()
         stats["min_length"] = series.str.len().min()
 
         from visions.application.summaries.series.text_summary import text_summary
 
-        stats.update(text_summary(series))
+        stats |= text_summary(series)
         stats["length"] = series.str.len()
 
     stats["date_warning"] = warning_type_date(series)
@@ -177,16 +177,13 @@ def describe_url_1d(series: pd.Series, series_description: dict) -> dict:
     # Make sure we deal with strings (Issue #100)
     series = series[~series.isnull()].astype(str)
 
-    stats = {}
-
     # Create separate columns for each URL part
     keys = ["scheme", "netloc", "path", "query", "fragment"]
     url_parts = dict(zip(keys, zip(*series.map(urlsplit))))
-    for name, part in url_parts.items():
-        stats["{}_counts".format(name.lower())] = pd.Series(
-            part, name=name
-        ).value_counts()
-
+    stats = {
+        f"{name.lower()}_counts": pd.Series(part, name=name).value_counts()
+        for name, part in url_parts.items()
+    }
     # Only run if at least 1 non-missing value
     value_counts = series_description["value_counts_without_nan"]
 
@@ -206,7 +203,7 @@ def describe_path_1d(series: pd.Series, series_description: dict) -> dict:
     Returns:
         A dict containing calculated series description values.
     """
-    series_description.update(describe_categorical_1d(series, series_description))
+    series_description |= describe_categorical_1d(series, series_description)
 
     # Make sure we deal with strings (Issue #100)
     series = series[~series.isnull()].astype(str)
@@ -224,7 +221,7 @@ def describe_path_1d(series: pd.Series, series_description: dict) -> dict:
         zip(keys, zip(*series.map(lambda x: [x.stem, x.suffix, x.name, x.parent])))
     )
     for name, part in path_parts.items():
-        stats["{}_counts".format(name.lower())] = pd.Series(
+        stats[f"{name.lower()}_counts"] = pd.Series(
             part, name=name
         ).value_counts()
 
@@ -249,9 +246,7 @@ def describe_boolean_1d(series: pd.Series, series_description: dict) -> dict:
     """
     value_counts = series_description["value_counts_without_nan"]
 
-    stats = {"top": value_counts.index[0], "freq": value_counts.iloc[0]}
-
-    return stats
+    return {"top": value_counts.index[0], "freq": value_counts.iloc[0]}
 
 
 def describe_supported(series: pd.Series, series_description: dict) -> dict:
@@ -276,7 +271,7 @@ def describe_supported(series: pd.Series, series_description: dict) -> dict:
     # TODO: check if we prefer without nan
     distinct_count = series_description["distinct_count_with_nan"]
 
-    stats = {
+    return {
         "n": leng,
         "count": count,
         "distinct_count": distinct_count,
@@ -286,12 +281,12 @@ def describe_supported(series: pd.Series, series_description: dict) -> dict:
         "p_infinite": n_infinite * 1.0 / leng,
         "n_infinite": n_infinite,
         "is_unique": distinct_count == leng,
-        "mode": series.mode().iloc[0] if count > distinct_count > 1 else series[0],
+        "mode": series.mode().iloc[0]
+        if count > distinct_count > 1
+        else series[0],
         "p_unique": distinct_count * 1.0 / leng,
         "memory_size": series.memory_usage(),
     }
-
-    return stats
 
 
 def describe_unsupported(series: pd.Series, series_description: dict):
@@ -312,7 +307,7 @@ def describe_unsupported(series: pd.Series, series_description: dict):
     # number of infinte observations in the Series
     n_infinite = count - series.count()
 
-    results_data = {
+    return {
         "n": leng,
         "count": count,
         "p_missing": 1 - count * 1.0 / leng,
@@ -321,8 +316,6 @@ def describe_unsupported(series: pd.Series, series_description: dict):
         "n_infinite": n_infinite,
         "memory_size": series.memory_usage(),
     }
-
-    return results_data
 
 
 def describe_1d(series: pd.Series) -> dict:
@@ -424,13 +417,9 @@ def describe_table(df: pd.DataFrame, variable_stats: pd.DataFrame) -> dict:
     )
 
     # Variable type counts
-    table_stats.update({k.value: 0 for k in Variable})
-    table_stats.update(
-        {
-            "types": dict(
-                variable_stats.loc["type"].apply(lambda x: x.value).value_counts()
-            )
-        }
+    table_stats |= {k.value: 0 for k in Variable}
+    table_stats["types"] = dict(
+        variable_stats.loc["type"].apply(lambda x: x.value).value_counts()
     )
 
     return table_stats
@@ -535,18 +524,12 @@ def describe(df: pd.DataFrame) -> dict:
         pool_size = multiprocessing.cpu_count()
 
     if pool_size == 1:
-        args = [(column, series) for column, series in df.iteritems()]
-        series_description = {
-            column: series
-            for column, series in itertools.starmap(multiprocess_1d, args)
-        }
+        args = list(df.iteritems())
+        series_description = dict(itertools.starmap(multiprocess_1d, args))
     else:
         with multiprocessing.pool.ThreadPool(pool_size) as executor:
-            series_description = {}
             results = executor.starmap(multiprocess_1d, df.iteritems())
-            for col, description in results:
-                series_description[col] = description
-
+            series_description = dict(results)
     # Mapping from column name to variable type
     variables = {
         column: description["type"]

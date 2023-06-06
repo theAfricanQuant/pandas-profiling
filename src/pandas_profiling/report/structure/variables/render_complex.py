@@ -11,7 +11,6 @@ from pandas_profiling.report.presentation.core import (
 
 
 def render_complex(summary):
-    template_variables = {}
     image_format = config["plot"]["image_format"].get(str)
 
     # Top
@@ -52,10 +51,11 @@ def render_complex(summary):
 
     placeholder = HTML("")
 
-    template_variables["top"] = Sequence(
-        [info, table1, table2, placeholder], sequence_type="grid"
-    )
-
+    template_variables = {
+        "top": Sequence(
+            [info, table1, table2, placeholder], sequence_type="grid"
+        )
+    }
     # Bottom
     items = [
         Image(

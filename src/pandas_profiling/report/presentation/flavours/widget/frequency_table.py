@@ -55,13 +55,4 @@ class WidgetFrequencyTable(FrequencyTable):
                     )
                 )
 
-        ft = widgets.VBox(items)
-
-        # Overwrite info to disabled
-        # TODO: resize width of progress bar / label
-        # display(
-        #     HTML(
-        #         "<style>.progress-bar-info{background-color: #ddd !important;} .dataframe td{     white-space: nowrap !important;}</style>"
-        #     )
-        # )
-        return ft
+        return widgets.VBox(items)

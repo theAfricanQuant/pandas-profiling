@@ -25,8 +25,8 @@ def render_url(summary):
 
     keys = ["scheme", "netloc", "path", "query", "fragment"]
     for url_part in keys:
-        template_variables["freqtable_{}".format(url_part)] = freq_table(
-            freqtable=summary["{}_counts".format(url_part)],
+        template_variables[f"freqtable_{url_part}"] = freq_table(
+            freqtable=summary[f"{url_part}_counts"],
             n=summary["n"],
             max_number_to_print=n_freq_table_max,
         )

@@ -12,9 +12,6 @@ def str_is_path(p: str):
     """
     try:
         path = Path(p)
-        if path.is_absolute():
-            return True
-        else:
-            return False
+        return bool(path.is_absolute())
     except TypeError:
         return False

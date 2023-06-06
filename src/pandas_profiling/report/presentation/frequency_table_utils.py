@@ -13,9 +13,7 @@ def freq_table(freqtable, n: int, max_number_to_print: int) -> list:
 
     # TODO: replace '' by '(Empty)' ?
 
-    if max_number_to_print > n:
-        max_number_to_print = n
-
+    max_number_to_print = min(max_number_to_print, n)
     if max_number_to_print < len(freqtable):
         freq_other = sum(freqtable.iloc[max_number_to_print:])
         min_freq = freqtable.values[max_number_to_print]
@@ -35,27 +33,23 @@ def freq_table(freqtable, n: int, max_number_to_print: int) -> list:
     if max_freq == 0:
         return rows
 
-    for label, freq in freqtable.iloc[0:max_number_to_print].items():
-        rows.append(
-            {
-                "label": label,
-                "width": freq / max_freq,
-                "count": freq,
-                "percentage": float(freq) / n,
-                "n": n,
-                "extra_class": "",
-            }
-        )
-
+    rows.extend(
+        {
+            "label": label,
+            "width": freq / max_freq,
+            "count": freq,
+            "percentage": float(freq) / n,
+            "n": n,
+            "extra_class": "",
+        }
+        for label, freq in freqtable.iloc[:max_number_to_print].items()
+    )
     if freq_other > min_freq:
         rows.append(
             {
-                "label": "Other values ({})".format(
-                    str(freqtable.count() - max_number_to_print)
-                ),
+                "label": f"Other values ({str(freqtable.count() - max_number_to_print)})",
                 "width": freq_other / max_freq,
                 "count": freq_other,
-                # Hack for tables with combined...
                 "percentage": min(float(freq_other) / n, 1.0),
                 "n": n,
                 "extra_class": "other",
@@ -99,17 +93,14 @@ def extreme_obs_table(freqtable, number_to_print, n, ascending=True) -> list:
     obs_to_print = sorted_freqtable.iloc[:number_to_print]
     max_freq = max(obs_to_print.values)
 
-    rows = []
-    for label, freq in obs_to_print.items():
-        rows.append(
-            {
-                "label": label,
-                "width": freq / max_freq if max_freq != 0 else 0,
-                "count": freq,
-                "percentage": float(freq) / n,
-                "extra_class": "",
-                "n": n,
-            }
-        )
-
-    return rows
+    return [
+        {
+            "label": label,
+            "width": freq / max_freq if max_freq != 0 else 0,
+            "count": freq,
+            "percentage": float(freq) / n,
+            "extra_class": "",
+            "n": n,
+        }
+        for label, freq in obs_to_print.items()
+    ]

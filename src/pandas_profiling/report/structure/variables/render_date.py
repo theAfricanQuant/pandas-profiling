@@ -10,9 +10,6 @@ from pandas_profiling.report.presentation.core import (
 
 
 def render_date(summary):
-    # TODO: render common?
-    template_variables = {}
-
     image_format = config["plot"]["image_format"].get(str)
 
     # Top
@@ -53,10 +50,11 @@ def render_date(summary):
         alt="Mini histogram",
     )
 
-    template_variables["top"] = Sequence(
-        [info, table1, table2, mini_histo], sequence_type="grid"
-    )
-
+    template_variables = {
+        "top": Sequence(
+            [info, table1, table2, mini_histo], sequence_type="grid"
+        )
+    }
     # Bottom
     bottom = Sequence(
         [

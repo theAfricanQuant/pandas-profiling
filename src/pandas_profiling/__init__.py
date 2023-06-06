@@ -175,8 +175,7 @@ class ProfileReport(object):
             theme=config["html"]["style"]["theme"].get(str),
         )
 
-        minify_html = config["html"]["minify_html"].get(bool)
-        if minify_html:
+        if minify_html := config["html"]["minify_html"].get(bool):
             from htmlmin.main import minify
 
             wrapped_html = minify(
@@ -185,16 +184,18 @@ class ProfileReport(object):
         return wrapped_html
 
     def to_json(self) -> str:
+
+
+
         class CustomEncoder(json.JSONEncoder):
             def default(self, o):
-                if isinstance(o, pd.core.series.Series) or isinstance(
-                    o, pd.core.frame.DataFrame
-                ):
-                    return {"__{}__".format(o.__class__.__name__): o.to_json()}
+                if isinstance(o, (pd.core.series.Series, pd.core.frame.DataFrame)):
+                    return {f"__{o.__class__.__name__}__": o.to_json()}
                 if isinstance(o, np.integer):
-                    return {"__{}__".format(o.__class__.__name__): o.tolist()}
+                    return {f"__{o.__class__.__name__}__": o.tolist()}
 
-                return {"__{}__".format(o.__class__.__name__): str(o)}
+                return {f"__{o.__class__.__name__}__": str(o)}
+
 
         return json.dumps(self.description_set, indent=4, cls=CustomEncoder)
 

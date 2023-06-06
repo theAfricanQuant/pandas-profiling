@@ -165,9 +165,7 @@ def render_real(summary):
             histogram(summary["histogram_data"], summary, histogram_bins),
             image_format=image_format,
             alt="Histogram",
-            caption="<strong>Histogram with fixed size bins</strong> (bins={})".format(
-                histogram_bins
-            ),
+            caption=f"<strong>Histogram with fixed size bins</strong> (bins={histogram_bins})",
             name="Histogram",
             anchor_id="{varid}histogram".format(varid=summary["varid"]),
         )

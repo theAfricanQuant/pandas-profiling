@@ -17,8 +17,9 @@ class Preview(ItemRenderer):
         )
 
     def __str__(self):
-        text = "Variabele\n"
-        text += "- top: {}".format(str(self.content["top"]).replace("\n", "\n\t"))
+        text = "Variabele\n" + "- top: {}".format(
+            str(self.content["top"]).replace("\n", "\n\t")
+        )
         text += "- bottom: {}".format(str(self.content["bottom"]).replace("\n", "\n\t"))
         return text
 

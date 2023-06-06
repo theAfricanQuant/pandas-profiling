@@ -53,9 +53,7 @@ def recoding_data():
         ],
         "y": ["dog", "dog", "dog", "dog", "cat", "cat", "camel", "camel"],
     }
-    df = pd.DataFrame(data)
-
-    return df
+    return pd.DataFrame(data)
 
 
 # def test_recoding_reject(recoding_data):
@@ -143,10 +141,20 @@ def recoding_data():
 
 @pytest.fixture
 def describe_data():
-    data = {
+    return {
         "id": [chr(97 + c) for c in range(1, 9)] + ["d"],
         "x": [50, 50, -10, 0, 0, 5, 15, -3, None],
-        "y": [0.000001, 654.152, None, 15.984512, 3122, -3.1415926535, 111, 15.9, 13.5],
+        "y": [
+            0.000001,
+            654.152,
+            None,
+            15.984512,
+            3122,
+            -3.1415926535,
+            111,
+            15.9,
+            13.5,
+        ],
         "cat": [
             "a",
             "long text value",
@@ -220,7 +228,6 @@ def describe_data():
             (17, 18),
         ],
     }
-    return data
 
 
 @pytest.fixture
@@ -653,26 +660,20 @@ def test_describe_df(describe_data, expected_results):
             if v == check_is_NaN:
                 assert (
                     k not in results["variables"][col]
-                ) == True, "Value `{}` for key `{}` in column `{}` is not NaN".format(
-                    results["variables"][col][k], k, col
-                )
+                ), f'Value `{results["variables"][col][k]}` for key `{k}` in column `{col}` is not NaN'
             elif isinstance(v, float):
                 assert (
                     pytest.approx(v) == results["variables"][col][k]
-                ), "Value `{}` for key `{}` in column `{}` is not NaN".format(
-                    results["variables"][col][k], k, col
-                )
+                ), f'Value `{results["variables"][col][k]}` for key `{k}` in column `{col}` is not NaN'
             else:
                 assert (
                     v == results["variables"][col][k]
-                ), "Value `{}` for key `{}` in column `{}` is not NaN".format(
-                    results["variables"][col][k], k, col
-                )
+                ), f'Value `{results["variables"][col][k]}` for key `{k}` in column `{col}` is not NaN'
 
         if results["variables"][col]["type"].value in ["NUM", "DATE"]:
             assert (
                 "histogram_data" in results["variables"][col]
-            ), "Mini-histogram missing for column {} ".format(col)
+            ), f"Mini-histogram missing for column {col} "
 
 
 def test_describe_empty():

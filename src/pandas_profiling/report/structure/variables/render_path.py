@@ -15,8 +15,8 @@ def render_path(summary):
 
     keys = ["name", "parent", "suffix", "stem"]
     for path_part in keys:
-        template_variables["freqtable_{}".format(path_part)] = freq_table(
-            freqtable=summary["{}_counts".format(path_part)],
+        template_variables[f"freqtable_{path_part}"] = freq_table(
+            freqtable=summary[f"{path_part}_counts"],
             n=summary["n"],
             max_number_to_print=n_freq_table_max,
         )
@@ -70,14 +70,16 @@ def render_path(summary):
 
     if "file_sizes" in summary:
         file_size_histogram = Image(
-            histogram(summary["file_sizes"], summary, summary["histogram_bins"]),
+            histogram(
+                summary["file_sizes"], summary, summary["histogram_bins"]
+            ),
             image_format=image_format,
             alt="File size",
-            caption="<strong>Histogram with fixed size bins of file sizes (in bytes)</strong> (bins={})".format(
-                summary["histogram_bins"]
-            ),
+            caption=f'<strong>Histogram with fixed size bins of file sizes (in bytes)</strong> (bins={summary["histogram_bins"]})',
             name="File size",
-            anchor_id="{varid}file_size_histogram".format(varid=summary["varid"]),
+            anchor_id="{varid}file_size_histogram".format(
+                varid=summary["varid"]
+            ),
         )
 
         # TODO: in SequeencyItem

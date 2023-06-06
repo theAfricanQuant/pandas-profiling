@@ -17,16 +17,16 @@ def render_path_image(summary):
     # Bottom
     keys = {"Image shape": "image_shape", "Exif keys": "exif_keys"}
 
-    for title, key in keys.items():
-        template_variables["freqtable_{}".format(key)] = freq_table(
-            freqtable=summary["{}_counts".format(key)],
+    for key in keys.values():
+        template_variables[f"freqtable_{key}"] = freq_table(
+            freqtable=summary[f"{key}_counts"],
             n=summary["n"],
             max_number_to_print=n_freq_table_max,
         )
 
     # TODO: add dropdown to switch to specific values
     exif_keys = FrequencyTable(
-        template_variables["freqtable_{}".format("exif_keys")],
+        template_variables['freqtable_exif_keys'],
         name="Exif keys",
         anchor_id="{varid}exif_frequency".format(varid=summary["varid"]),
     )
@@ -34,9 +34,11 @@ def render_path_image(summary):
     template_variables["bottom"].content["items"].append(exif_keys)
 
     image_shape_freq = FrequencyTable(
-        template_variables["freqtable_{}".format("image_shape")],
+        template_variables['freqtable_image_shape'],
         name="Frequency",
-        anchor_id="{varid}image_shape_frequency".format(varid=summary["varid"]),
+        anchor_id="{varid}image_shape_frequency".format(
+            varid=summary["varid"]
+        ),
     )
 
     image_shape_scatter = Image(
